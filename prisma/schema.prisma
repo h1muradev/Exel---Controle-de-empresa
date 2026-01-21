@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum CompanyStatus {
+  ATIVA
+  INATIVA
+  INADIMPLENTE
+}
+
+enum TipoUnidade {
+  MATRIZ
+  FILIAL
+}
+
+enum CertificateStatus {
+  ATIVO
+  PERTO_DE_VENCER
+  VENCIDO
+}
+
+enum Permission {
+  VIEW_SENSITIVE
+}
+
+model User {
+  id                String           @id @default(uuid())
+  email             String           @unique
+  name              String
+  passwordHash      String
+  role              UserRole
+  status            UserStatus       @default(ACTIVE)
+  mustResetPassword Boolean          @default(false)
+  permissions       UserPermission[]
+  notes             Note[]
+  auditLogs         AuditLog[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model UserPermission {
+  id         String     @id @default(uuid())
+  userId     String
+  permission Permission
+  user       User       @relation(fields: [userId], references: [id])
+}
+
+model Company {
+  id           String        @id @default(uuid())
+  codigo       String        @unique
+  apelido      String
+  cnpj         String        @unique
+  responsavel  String?
+  cpfEncrypted String?
+  tipoUnidade  TipoUnidade
+  matrizId     String?
+  matriz       Company?      @relation("MatrizRelation", fields: [matrizId], references: [id])
+  filiais      Company[]     @relation("MatrizRelation")
+  status       CompanyStatus
+  emiteNfe     Boolean       @default(false)
+  emiteNfce    Boolean       @default(false)
+  emiteIss     Boolean       @default(false)
+  certificates Certificate[]
+  notes        Note[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Certificate {
+  id         String   @id @default(uuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id])
+  validade   DateTime
+  alertaDias Int      @default(30)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Note {
+  id              String   @id @default(uuid())
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+  texto           String
+  createdAt       DateTime @default(now())
+  createdByUserId String
+  createdBy       User     @relation(fields: [createdByUserId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String
+  actor     User     @relation(fields: [actorId], references: [id])
+  action    String
+  entity    String
+  entityId  String
+  before    String?
+  after     String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model AppConfig {
+  id                String   @id @default(uuid())
+  alertaDias        Int      @default(30)
+  retentionDays     Int      @default(730)
+  logRetentionDays  Int      @default(180)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
