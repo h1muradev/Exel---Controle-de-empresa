@@ -71,6 +71,12 @@ npm run start
 ```
 3. Use proxy interno (Nginx) com TLS.
 
+## Deploy na Vercel (intranet)
+- **Node.js 20+** (definido em `package.json` > `engines`).
+- O arquivo `vercel.json` força `npm install --include=dev` para garantir plugins de build (PostCSS/Tailwind).
+- Configure as mesmas variáveis do `.env.example` no painel da Vercel.
+- Use um PostgreSQL externo (Neon/Supabase/RDS); o `docker-compose.yml` é apenas para dev local.
+
 ## Segurança (LGPD + OWASP) — Implementado
 - Hash de senha **Argon2**.
 - Cookies **HttpOnly** e `SameSite=Lax`.
