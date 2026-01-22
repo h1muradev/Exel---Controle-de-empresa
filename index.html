@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Excel-VM Control</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="app" id="app">
+      <aside class="sidebar">
+        <h2>Excel-VM</h2>
+        <nav>
+          <button data-view="dashboard" class="active">Dashboard</button>
+          <button data-view="companies">Empresas</button>
+          <button data-view="certificates">Certificados</button>
+          <button data-view="notes">Observações</button>
+          <button data-view="users" data-role="ADMIN">Usuários</button>
+        </nav>
+        <footer>
+          <span class="muted">Uso interno — acesso auditado</span>
+          <button id="logout">Sair</button>
+        </footer>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <h1 id="view-title">Dashboard</h1>
+          <div class="search">
+            <input id="search-input" placeholder="Buscar empresa (apelido, CNPJ, responsável)" />
+            <div id="search-results" class="results"></div>
+          </div>
+        </header>
+
+        <section id="dashboard" class="view">
+          <div class="kpis">
+            <div class="card"><span>Total Empresas</span><strong id="kpi-total">0</strong></div>
+            <div class="card"><span>Ativas</span><strong id="kpi-ativas">0</strong></div>
+            <div class="card"><span>Inadimplentes</span><strong id="kpi-inadimplentes">0</strong></div>
+            <div class="card"><span>Emitem NFe</span><strong id="kpi-nfe">0</strong></div>
+          </div>
+          <div class="grid">
+            <div class="card">
+              <h3>Status</h3>
+              <canvas id="chart-status"></canvas>
+            </div>
+            <div class="card">
+              <h3>Emissão Fiscal</h3>
+              <canvas id="chart-emite"></canvas>
+            </div>
+            <div class="card">
+              <h3>Certificados</h3>
+              <canvas id="chart-cert"></canvas>
+            </div>
+            <div class="card">
+              <h3>Próximos a vencer</h3>
+              <ul id="expiring-list"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="companies" class="view hidden">
+          <div class="card">
+            <h3>Empresas</h3>
+            <form id="company-form" class="form">
+              <input id="company-apelido" placeholder="Apelido" required />
+              <input id="company-cnpj" placeholder="CNPJ (somente números ou com máscara)" required />
+              <input id="company-responsavel" placeholder="Responsável" />
+              <input id="company-cpf" placeholder="CPF (opcional)" />
+              <select id="company-tipo">
+                <option value="MATRIZ">Matriz</option>
+                <option value="FILIAL">Filial</option>
+              </select>
+              <input id="company-matriz" placeholder="ID da matriz (se Filial)" />
+              <select id="company-status">
+                <option value="ATIVA">Ativa</option>
+                <option value="INATIVA">Inativa</option>
+                <option value="INADIMPLENTE">Inadimplente</option>
+              </select>
+              <label><input type="checkbox" id="company-nfe" /> Emite NFe</label>
+              <label><input type="checkbox" id="company-nfce" /> Emite NFCe</label>
+              <label><input type="checkbox" id="company-iss" /> Emite ISS</label>
+              <button type="submit">Salvar Empresa</button>
+            </form>
+            <table>
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Apelido</th>
+                  <th>CNPJ</th>
+                  <th>Status</th>
+                  <th>Emite NFe</th>
+                </tr>
+              </thead>
+              <tbody id="companies-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="certificates" class="view hidden">
+          <div class="card">
+            <h3>Certificados</h3>
+            <form id="certificate-form" class="form">
+              <input id="cert-validade" type="date" required />
+              <input id="cert-alert" type="number" placeholder="Dias alerta (padrão 30)" />
+              <button type="submit">Adicionar Certificado</button>
+            </form>
+            <p class="muted">Selecione uma empresa na busca para visualizar certificados.</p>
+            <div id="certificates-body"></div>
+          </div>
+        </section>
+
+        <section id="notes" class="view hidden">
+          <div class="card">
+            <h3>Observações</h3>
+            <form id="note-form" class="form">
+              <textarea id="note-text" placeholder="Digite a observação" rows="3"></textarea>
+              <button type="submit">Salvar Observação</button>
+            </form>
+            <div id="notes-body"></div>
+          </div>
+        </section>
+
+        <section id="users" class="view hidden">
+          <div class="card">
+            <h3>Usuários</h3>
+            <div id="users-body"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="login" id="login">
+      <div class="card">
+        <h1>Login</h1>
+        <input id="login-email" placeholder="email" />
+        <input id="login-password" type="password" placeholder="senha" />
+        <button id="login-submit">Entrar</button>
+        <p class="muted" id="login-error"></p>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
